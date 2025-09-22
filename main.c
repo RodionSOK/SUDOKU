@@ -1,97 +1,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <GLFW/glfw3.h>
+#include "include/sudoku_solver.h"
+#include "include/benchmark.h"
 
 ///КОНСТАНТЫ
 
-#define SIZE 9
-
 int X = 1, Y = 1;
-
 int WHEIGHT = 500;
 int WWIDTH = 500;
-
 int map[SIZE][SIZE] = {0};
-
-///РЕШЕНИЕ ТАБЛИЦЫ
-
-typedef struct {
-    int row;
-    int col;
-} Cell;
-
-typedef struct {
-    Cell emptyCells[SIZE * SIZE];
-    int emptyCount;
-    int currentEmptyIndex;
-} Solver;
-
-bool validGrid(int row, int col) {
-    int value = map[row][col];
-
-    // Проверка строки
-    for (int i = 0; i < SIZE; i++) {
-        if (i != col && map[row][i] == value)
-            return false;
-    }
-
-    // Проверка столбца
-    for (int i = 0; i < SIZE; i++) {
-        if (i != row && map[i][col] == value)
-            return false;
-    }
-
-    // Проверка блока 3x3
-    int startRow = (row / 3) * 3;
-    int startCol = (col / 3) * 3;
-    for (int i = startRow; i < startRow + 3; i++) {
-        for (int j = startCol; j < startCol + 3; j++) {
-            if ((i != row || j != col) && map[i][j] == value)
-                return false;
-        }
-    }
-
-    return true;
-}
-
-bool solveBT(Solver* solver) {
-    if (solver->emptyCount == 0) {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (map[i][j] == 0) {
-                    solver->emptyCells[solver->emptyCount].row = i;
-                    solver->emptyCells[solver->emptyCount].col = j;
-                    solver->emptyCount++;
-                }
-            }
-        }
-        solver->currentEmptyIndex = 0;
-    }
-
-    while (solver->currentEmptyIndex < solver->emptyCount) {
-        Cell currentCell = solver->emptyCells[solver->currentEmptyIndex];
-        int row = currentCell.row;
-        int col = currentCell.col;
-        bool vGrid = false;
-
-        for (int val = map[row][col] + 1; val <= SIZE && !vGrid; val++) {
-            map[row][col] = val;
-            vGrid = validGrid(row, col);
-        }
-
-        if (vGrid) {
-            solver->currentEmptyIndex++;
-        } else {
-            if (solver->currentEmptyIndex == 0) {
-                return false;
-            } else {
-                map[row][col] = 0;
-                solver->currentEmptyIndex--;
-            }
-        }
-    }
-    return true;
-}
 
 ///ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ
 
@@ -125,17 +43,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
             .currentEmptyIndex = 0
         };
 
-        if (solveBT(&solver)) {
+        if (solveBT(map, &solver)) {
             printf("Решение найдено:\n");
-            for (int i = SIZE - 1; i >= 0; i--) {
-                for (int j = 0; j < SIZE; j++) {
-                    printf("%d ", map[j][i]);
-                }
-                printf("\n");
-            }
+            print_map(map);
         } else {
             printf("Решение не найдено.\n");
         }
+    }
+    
+    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+        run_benchmark();
     }
     
     if (GLFW_KEY_0 <= key && key <= GLFW_KEY_9 && GLFW_PRESS) {
@@ -171,11 +88,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
     
     if (key == GLFW_KEY_R && action == GLFW_PRESS) {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                map[i][j] = 0;
-            }
-        }
+        clear_map(map);
     }
 }
 
@@ -233,7 +146,7 @@ void Hightlighting() {
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos); // Получаем координаты курсора
+        glfwGetCursorPos(window, &xpos, &ypos); 
         
         X = xpos / WWIDTH * 11;
         Y = abs( (ypos - WHEIGHT) / WHEIGHT * 11);
