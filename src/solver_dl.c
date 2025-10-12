@@ -37,9 +37,8 @@ static void add_node(int row_id, int col) {
     DLNode* node = &nodes[node_count++];
     ColumnHeader* column = &columns[col];
     
-    node->row = row_id;  // Сохраняем row_id, а не индекс строки
+    node->row = row_id;  
     node->col = col;
-    node->value = 0;
     node->column = &column->node;
     
     node->up = column->node.up;
@@ -82,9 +81,18 @@ static ColumnHeader* choose_column() {
     
     for (DLNode* col = header.right; col != &header; col = col->right) {
         ColumnHeader* column = (ColumnHeader*)col;
+        
+        if (column->size == 0) {
+            return column;  
+        }
+        
         if (column->size < min_size) {
             min_size = column->size;
             best = column;
+            
+            if (min_size == 1) {
+                return best;  
+            }
         }
     }
     
@@ -93,7 +101,7 @@ static ColumnHeader* choose_column() {
 
 static bool search(int depth) {
     if (header.right == &header) {
-        solution_count = depth;  // Устанавливаем правильное количество решений
+        solution_count = depth;
         return true; 
     }
     
@@ -112,7 +120,7 @@ static bool search(int depth) {
         }
         
         if (search(depth + 1)) {
-            return true;  // Не изменяем solution_count здесь
+            return true;  
         }
         
         for (DLNode* node = row->left; node != row; node = node->left) {
@@ -169,17 +177,12 @@ static void build_matrix(int map[SIZE][SIZE]) {
 static void extract_solution(int map[SIZE][SIZE]) {
     for (int i = 0; i < solution_count; i++) {
         int row_id = solution[i];
-        
-        // Правильное извлечение координат из row_id:
-        // В build_matrix: row_id формируется как r * SIZE * SIZE + c * SIZE + (v - 1)
-        int r = row_id / (SIZE * SIZE);         // Строка (0-8)
-        int c = (row_id / SIZE) % SIZE;         // Столбец (0-8)  
-        int v = (row_id % SIZE) + 1;            // Значение (1-9)
-        
-        // Проверяем границы и заполняем
-        if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && v >= 1 && v <= SIZE) {
-            map[r][c] = v;
-        }
+       
+        int r = row_id / (SIZE * SIZE);      
+        int c = (row_id / SIZE) % SIZE;      
+        int v = (row_id % SIZE) + 1;         
+
+        map[r][c] = v;
     }
 }
 
@@ -192,10 +195,5 @@ bool solve_dl(int map[SIZE][SIZE]) {
     }
     
     return false;
-}
-
-void init_dl_solver(int map[SIZE][SIZE], DLNode** root) {
-    *root = &header;
-    build_matrix(map);
 }
 

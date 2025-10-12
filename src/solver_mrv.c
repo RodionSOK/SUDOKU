@@ -1,43 +1,43 @@
 #include "solver_mrv.h"
 #include <stdbool.h>
 
-static bool is_valid_move(int map[SIZE][SIZE], int row, int col, int num) {
+static int count_possibilities(int map[SIZE][SIZE], int row, int col) {
+    if (map[row][col] != 0) return 0;
+
+    int start_row = (row / 3) * 3;
+    int start_col = (col / 3) * 3;
+    int end_row = start_row + 3;
+    int end_col = start_col + 3;
+
+    int used_mask = 0;
+    
     for (int j = 0; j < SIZE; j++) {
-        if (map[row][j] == num) {
-            return false;
+        if (map[row][j] != 0) {
+            used_mask |= (1 << map[row][j]);
         }
     }
     
     for (int i = 0; i < SIZE; i++) {
-        if (map[i][col] == num) {
-            return false;
+        if (map[i][col] != 0) {
+            used_mask |= (1 << map[i][col]);
         }
     }
     
-    int start_row = (row / 3) * 3;
-    int start_col = (col / 3) * 3;
-    for (int i = start_row; i < start_row + 3; i++) {
-        for (int j = start_col; j < start_col + 3; j++) {
-            if (map[i][j] == num) {
-                return false;
+    for (int i = start_row; i < end_row; i++) {
+        for (int j = start_col; j < end_col; j++) {
+            if (map[i][j] != 0) {
+                used_mask |= (1 << map[i][j]);
             }
         }
     }
     
-    return true;
-}
-
-static int count_possibilities(int map[SIZE][SIZE], int row, int col) {
-    if (map[row][col] != 0) {
-        return 0; 
-    }
-    
     int count = 0;
     for (int num = 1; num <= SIZE; num++) {
-        if (is_valid_move(map, row, col, num)) {
+        if (!(used_mask & (1 << num))) {
             count++;
         }
     }
+    
     return count;
 }
 
@@ -79,30 +79,51 @@ static int find_mrv_cell(int map[SIZE][SIZE], int *best_row, int *best_col) {
 
 static bool solve_mrv_recursive(int map[SIZE][SIZE]) {
     int row, col;
-    
     int result = find_mrv_cell(map, &row, &col);
     
-    if (result == 0) {
-        return true; 
-    }
+    if (result == 0) return true; 
+    if (result == -1) return false;
     
-    if (result == -1) {
-        return false; 
-    }
+    int start_row = (row / 3) * 3;
+    int start_col = (col / 3) * 3;
+    int end_row = start_row + 3;
+    int end_col = start_col + 3;
     
-    for (int num = 1; num <= SIZE; num++) {
-        if (is_valid_move(map, row, col, num)) {
-            map[row][col] = num; 
-            
-            if (solve_mrv_recursive(map)) {
-                return true; 
-            }
-            
-            map[row][col] = 0; 
+    int used_mask = 0;
+    
+    for (int j = 0; j < SIZE; j++) {
+        if (map[row][j] != 0) {
+            used_mask |= (1 << map[row][j]);
         }
     }
     
-    return false; 
+    for (int i = 0; i < SIZE; i++) {
+        if (map[i][col] != 0) {
+            used_mask |= (1 << map[i][col]);
+        }
+    }
+    
+    for (int i = start_row; i < end_row; i++) {
+        for (int j = start_col; j < end_col; j++) {
+            if (map[i][j] != 0) {
+                used_mask |= (1 << map[i][j]);
+            }
+        }
+    }
+    
+    for (int num = 1; num <= SIZE; num++) {
+        if (!(used_mask & (1 << num))) {
+            map[row][col] = num;
+            
+            if (solve_mrv_recursive(map)) {
+                return true;
+            }
+            
+            map[row][col] = 0;
+        }
+    }
+    
+    return false;
 }
 
 bool solve_mrv(int map[SIZE][SIZE]) {
