@@ -58,7 +58,7 @@ bool update_constraints(ConstraintSet* constraints, int row, int col, int value)
         }
     }
     
-    return constraints->candidates[row][col].count >= 0;
+    return true;  
 }
 
 Cell find_most_constrained_cell(int map[SIZE][SIZE], ConstraintSet* constraints) {
@@ -67,8 +67,9 @@ Cell find_most_constrained_cell(int map[SIZE][SIZE], ConstraintSet* constraints)
     
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            if (map[i][j] == 0 && constraints->candidates[i][j].count < minCount && 
-                constraints->candidates[i][j].count > 0) {
+            if (constraints->candidates[i][j].count > 0 && 
+            constraints->candidates[i][j].count < minCount && 
+            map[i][j] == 0) {
                 minCount = constraints->candidates[i][j].count;
                 result.row = i;
                 result.col = j;

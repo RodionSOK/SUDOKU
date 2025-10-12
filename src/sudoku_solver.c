@@ -6,31 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-bool validGrid(int map[SIZE][SIZE], int row, int col) {
-    int value = map[row][col];
-
-    for (int i = 0; i < SIZE; i++) {
-        if (i != col && map[row][i] == value)
-            return false;
-    }
-
-    for (int i = 0; i < SIZE; i++) {
-        if (i != row && map[i][col] == value)
-            return false;
-    }
-
-    int startRow = (row / 3) * 3;
-    int startCol = (col / 3) * 3;
-    for (int i = startRow; i < startRow + 3; i++) {
-        for (int j = startCol; j < startCol + 3; j++) {
-            if ((i != row || j != col) && map[i][j] == value)
-                return false;
-        }
-    }
-
-    return true;
-}
-
 bool solve_sudoku(int map[SIZE][SIZE], SolverType type) {
     bool solved = false;
 
