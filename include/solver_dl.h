@@ -6,7 +6,7 @@
 typedef struct DLNode {
     struct DLNode *left, *right, *up, *down;
     struct DLNode *column;
-    int row, col, value;
+    int row, col;
 } DLNode;
 
 typedef struct ColumnHeader {
