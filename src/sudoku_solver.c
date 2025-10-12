@@ -1,5 +1,10 @@
-#include "../include/sudoku_solver.h"
+#include "sudoku_solver.h"
+#include "solver_backtrack.h"
+#include "solver_mrv.h"
+#include "solver_dl.h"
+#include "solver_constraint.h"
 #include <stdio.h>
+#include <string.h>
 
 bool validGrid(int map[SIZE][SIZE], int row, int col) {
     int value = map[row][col];
@@ -26,101 +31,36 @@ bool validGrid(int map[SIZE][SIZE], int row, int col) {
     return true;
 }
 
-bool solveBT(int map[SIZE][SIZE], Solver* solver) {
-    if (solver->emptyCount == 0) {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (map[i][j] == 0) {
-                    solver->emptyCells[solver->emptyCount].row = i;
-                    solver->emptyCells[solver->emptyCount].col = j;
-                    solver->emptyCount++;
-                }
-            }
-        }
-        solver->currentEmptyIndex = 0;
+bool solve_sudoku(int map[SIZE][SIZE], SolverType type) {
+    bool solved = false;
+
+    switch (type) {
+        case SOLVER_BACKTRACK:
+            solved = solve_backtrack(map);
+            break;
+        // case SOLVER_MRV:
+        //     solved = solve_mrv(map);
+        //     break;
+        // case SOLVER_DLX:
+        //     solved = solve_dl(map);
+        //     break;
+        case SOLVER_CONSTRAINT:
+            solved = solve_constraint(map);
+            break;
+        default:
+            printf("Неизвестный тип решателя\n");
+            return false;
     }
 
-    while (solver->currentEmptyIndex < solver->emptyCount) {
-        Cell currentCell = solver->emptyCells[solver->currentEmptyIndex];
-        int row = currentCell.row;
-        int col = currentCell.col;
-        bool vGrid = false;
-
-        for (int val = map[row][col] + 1; val <= SIZE && !vGrid; val++) {
-            map[row][col] = val;
-            vGrid = validGrid(map, row, col);
-        }
-
-        if (vGrid) {
-            solver->currentEmptyIndex++;
-        } else {
-            if (solver->currentEmptyIndex == 0) {
-                return false;
-            } else {
-                map[row][col] = 0;
-                solver->currentEmptyIndex--;
-            }
-        }
-    }
-    return true;
+    return solved;
 }
 
-bool solveBT_benchmark(int map[SIZE][SIZE], Solver* solver, int* iterations) {
-    *iterations = 0;
-    
-    if (solver->emptyCount == 0) {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (map[i][j] == 0) {
-                    solver->emptyCells[solver->emptyCount].row = i;
-                    solver->emptyCells[solver->emptyCount].col = j;
-                    solver->emptyCount++;
-                }
-            }
-        }
-        solver->currentEmptyIndex = 0;
-    }
-
-    while (solver->currentEmptyIndex < solver->emptyCount) {
-        (*iterations)++;
-        Cell currentCell = solver->emptyCells[solver->currentEmptyIndex];
-        int row = currentCell.row;
-        int col = currentCell.col;
-        bool vGrid = false;
-
-        for (int val = map[row][col] + 1; val <= SIZE && !vGrid; val++) {
-            map[row][col] = val;
-            vGrid = validGrid(map, row, col);
-        }
-
-        if (vGrid) {
-            solver->currentEmptyIndex++;
-        } else {
-            if (solver->currentEmptyIndex == 0) {
-                return false;
-            } else {
-                map[row][col] = 0;
-                solver->currentEmptyIndex--;
-            }
-        }
-    }
-    return true;
+void copy_map(int src[SIZE][SIZE], int dest[SIZE][SIZE]) {
+    memcpy(dest, src, sizeof(int) * SIZE * SIZE);
 }
 
-void copy_map(int src[SIZE][SIZE], int dst[SIZE][SIZE]) {
-    for (int i = 0; i < SIZE; i++) {
-        for (int j = 0; j < SIZE; j++) {
-            dst[i][j] = src[i][j];
-        }
-    }
-}
-
-void clear_map(int target[SIZE][SIZE]) {
-    for (int i = 0; i < SIZE; i++) {
-        for (int j = 0; j < SIZE; j++) {
-            target[i][j] = 0;
-        }
-    }
+void clear_map(int map[SIZE][SIZE]) {
+    memset(map, 0, sizeof(int) * SIZE * SIZE);
 }
 
 void print_map(int map[SIZE][SIZE]) {

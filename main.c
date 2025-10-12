@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <GLFW/glfw3.h>
+#include <stdlib.h>     
 #include "include/sudoku_solver.h"
 #include "include/benchmark.h"
 
@@ -26,7 +27,7 @@ int InMap() {
     return 0;
 }
 
-float abs(float number) {
+float abs_float(float number) {
     if (number < 0) {
         number *= -1;
     }
@@ -37,13 +38,7 @@ float abs(float number) {
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
-        
-        Solver solver = {
-            .emptyCount = 0,
-            .currentEmptyIndex = 0
-        };
-
-        if (solveBT(map, &solver)) {
+        if (solve_sudoku(map, SOLVER_CONSTRAINT)) {
             printf("Решение найдено:\n");
             print_map(map);
         } else {
@@ -53,6 +48,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     
     if (key == GLFW_KEY_B && action == GLFW_PRESS) {
         run_benchmark();
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
     
     if (GLFW_KEY_0 <= key && key <= GLFW_KEY_9 && GLFW_PRESS) {
@@ -149,7 +145,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         glfwGetCursorPos(window, &xpos, &ypos); 
         
         X = xpos / WWIDTH * 11;
-        Y = abs( (ypos - WHEIGHT) / WHEIGHT * 11);
+        Y = abs_float( (ypos - WHEIGHT) / WHEIGHT * 11);
     }
 }
 

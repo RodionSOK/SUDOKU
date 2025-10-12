@@ -1,7 +1,20 @@
-#include "../include/benchmark.h"
-#include "../include/test_puzzles.h"
+#include "benchmark.h"
+#include "test_puzzles.h"
 #include <stdio.h>
+#include <time.h>
 #include <sys/time.h>
+#include <string.h>
+
+const char* get_solver_name(SolverType type) {
+    switch(type) {
+        case SOLVER_BACKTRACK:
+            return "Backtracking";
+        case SOLVER_CONSTRAINT:
+            return "Constraint";
+        default:
+            return "Unknown";
+    }
+}
 
 double get_time_microseconds() {
     struct timeval tv;
@@ -9,53 +22,51 @@ double get_time_microseconds() {
     return tv.tv_sec * 1000000.0 + tv.tv_usec;
 }
 
-BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], const char* name) {
+BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], SolverType type) {
     BenchmarkResult result = {0, 0, false};
-    int test_map[SIZE][SIZE];
+    int test_puzzle[SIZE][SIZE];
     
-    printf("Тестирование %s головоломки...\n", name);
-    
-    copy_map(puzzle, test_map);
-    
-    Solver solver = {
-        .emptyCount = 0,
-        .currentEmptyIndex = 0
-    };
+    memcpy(test_puzzle, puzzle, sizeof(int) * SIZE * SIZE);
     
     double start_time = get_time_microseconds();
-    result.solved = solveBT_benchmark(test_map, &solver, &result.iterations);
+    result.solved = solve_sudoku(test_puzzle, type);
     double end_time = get_time_microseconds();
     
-    result.time_taken = (end_time - start_time) / 1000.0; 
-    
-    if (result.solved) {
-        printf("✓ Решено за %.2f мс (%d итераций)\n", 
-               result.time_taken, result.iterations);
-    } else {
-        printf("✗ Не решено за %.2f мс (%d итераций)\n", 
-               result.time_taken, result.iterations);
-    }
-    
+    result.time_taken = end_time - start_time;
     return result;
 }
 
-
 void run_benchmark() {
-    printf("\n=== СУДОКУ БЕНЧМАРК ===\n");
+    const char* difficulty_names[] = {"Easy", "Medium", "Hard", "Expert"};
+    BenchmarkResult results[2];  
+    const char* solver_names[2]; 
     
-    const int puzzle_count = 4;
-    BenchmarkResult results[puzzle_count];
-    const char* names[] = {"Простая", "Средняя", "Сложная", "Экспертная"};
-    int puzzles[puzzle_count][SIZE][SIZE];
+    int test_puzzles[4][SIZE][SIZE];
+    get_test_puzzles(test_puzzles);
     
-    copy_map(easy_puzzle, puzzles[0]);
-    copy_map(medium_puzzle, puzzles[1]);
-    copy_map(hard_puzzle, puzzles[2]);
-    copy_map(expert_puzzle, puzzles[3]);
+    printf("\nBenchmark Results:\n");
+    printf("========================================\n");
     
-    for (int i = 0; i < puzzle_count; i++) {
-        results[i] = benchmark_single_puzzle(puzzles[i], names[i]);
+    for (int diff = 0; diff < 4; diff++) {
+        printf("\nDifficulty: %s\n", difficulty_names[diff]);
+        printf("----------------------------------------\n");
+        printf("%-20s %-15s %-10s\n", "Solver", "Time (ms)", "Solved");
+        printf("----------------------------------------\n");
+        
+        results[0] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_BACKTRACK);
+        solver_names[0] = get_solver_name(SOLVER_BACKTRACK);
+        
+        results[1] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_CONSTRAINT);
+        solver_names[1] = get_solver_name(SOLVER_CONSTRAINT);
+        
+        for (int i = 0; i < 2; i++) {
+            printf("%-20s %-15.3f %-10s\n",
+                   solver_names[i],
+                   results[i].time_taken / 1000.0,
+                   results[i].solved ? "Yes" : "No");
+        }
+        printf("----------------------------------------\n");
     }
-
-    printf("\nНажмите СNTRL+C для завершения...\n\n");
+    printf("========================================\n");
 }
+

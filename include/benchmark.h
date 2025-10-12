@@ -11,8 +11,7 @@ typedef struct {
 } BenchmarkResult;
 
 double get_time_microseconds();
-BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], const char* name);
+BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], SolverType type);
 void run_benchmark();
-void print_benchmark_results(BenchmarkResult results[], const char* names[], int count);
 
 #endif

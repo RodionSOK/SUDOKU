@@ -1,4 +1,5 @@
-#include "../include/test_puzzles.h"
+#include "test_puzzles.h"
+#include <string.h>
 
 int easy_puzzle[SIZE][SIZE] = {
     {5, 3, 0, 0, 7, 0, 0, 0, 0},
@@ -47,3 +48,10 @@ int expert_puzzle[SIZE][SIZE] = {
     {4, 0, 1, 0, 9, 0, 3, 0, 0},
     {0, 0, 0, 8, 0, 0, 0, 9, 0}
 };
+
+void get_test_puzzles(int puzzles[][SIZE][SIZE]) {
+    memcpy(puzzles[0], easy_puzzle, sizeof(easy_puzzle));
+    memcpy(puzzles[1], medium_puzzle, sizeof(medium_puzzle));
+    memcpy(puzzles[2], hard_puzzle, sizeof(hard_puzzle));
+    memcpy(puzzles[3], expert_puzzle, sizeof(expert_puzzle));
+}

@@ -8,6 +8,6 @@ extern int medium_puzzle[SIZE][SIZE];
 extern int hard_puzzle[SIZE][SIZE];
 extern int expert_puzzle[SIZE][SIZE];
 
-void get_test_puzzles(int puzzles[][SIZE][SIZE], const char* names[], int* count);
+void get_test_puzzles(int puzzles[][SIZE][SIZE]);
 
 #endif

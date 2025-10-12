@@ -2,26 +2,28 @@ CC = gcc
 CFLAGS = -Wall -std=c99 -I/usr/local/include -I/opt/homebrew/include
 LIBS = -L/usr/local/lib -L/opt/homebrew/lib -lglfw -framework OpenGL
 
-# Исходные файлы
-SOURCES = main.c src/sudoku_solver.c src/benchmark.c src/test_puzzles.c
+SOURCES = main.c \
+    src/sudoku_solver.c \
+    src/benchmark.c \
+    src/test_puzzles.c \
+    src/solver_backtrack.c \
+    src/solver_mrv.c \
+    src/solver_dl.c \
+    src/solver_constraint.c
+
 TARGET = sudoku
 
-# Основная цель
 all: $(TARGET)
 
-# Сборка программы
 $(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) -Iinclude $(SOURCES) -o $(TARGET) $(LIBS)
 
-# Запуск
 run: $(TARGET)
 	./$(TARGET)
 
-# Очистка
 clean:
 	rm -f $(TARGET)
 
-# Пересборка
 rebuild: clean all
 
 .PHONY: all run clean rebuild
