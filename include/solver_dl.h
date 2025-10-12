@@ -15,7 +15,5 @@ typedef struct ColumnHeader {
 } ColumnHeader;
 
 bool solve_dl(int map[SIZE][SIZE]);
-void init_dl_solver(int map[SIZE][SIZE], DLNode** root);
-void cleanup_dl_solver(DLNode* root);
 
 #endif
