@@ -12,8 +12,8 @@ typedef struct {
 
 typedef enum {
     SOLVER_BACKTRACK,
-    // SOLVER_MRV,
-    // SOLVER_DLX,
+    SOLVER_MRV,
+    SOLVER_DLX,
     SOLVER_CONSTRAINT
 } SolverType;
 
