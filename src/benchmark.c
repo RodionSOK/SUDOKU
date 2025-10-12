@@ -6,9 +6,13 @@
 #include <string.h>
 
 const char* get_solver_name(SolverType type) {
-    switch(type) {
+    switch (type) {
         case SOLVER_BACKTRACK:
             return "Backtracking";
+        case SOLVER_MRV:
+            return "MRV Heuristic";
+        case SOLVER_DLX:
+            return "Dancing Links";
         case SOLVER_CONSTRAINT:
             return "Constraint";
         default:
@@ -38,8 +42,8 @@ BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], SolverType type)
 
 void run_benchmark() {
     const char* difficulty_names[] = {"Easy", "Medium", "Hard", "Expert"};
-    BenchmarkResult results[2];  
-    const char* solver_names[2]; 
+    BenchmarkResult results[4];  
+    const char* solver_names[4]; 
     
     int test_puzzles[4][SIZE][SIZE];
     get_test_puzzles(test_puzzles);
@@ -56,10 +60,16 @@ void run_benchmark() {
         results[0] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_BACKTRACK);
         solver_names[0] = get_solver_name(SOLVER_BACKTRACK);
         
-        results[1] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_CONSTRAINT);
-        solver_names[1] = get_solver_name(SOLVER_CONSTRAINT);
+        results[1] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_MRV);
+        solver_names[1] = get_solver_name(SOLVER_MRV);
         
-        for (int i = 0; i < 2; i++) {
+        results[2] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_DLX);
+        solver_names[2] = get_solver_name(SOLVER_DLX);
+        
+        results[3] = benchmark_single_puzzle(test_puzzles[diff], SOLVER_CONSTRAINT);
+        solver_names[3] = get_solver_name(SOLVER_CONSTRAINT);
+        
+        for (int i = 0; i < 4; i++) {
             printf("%-20s %-15.3f %-10s\n",
                    solver_names[i],
                    results[i].time_taken / 1000.0,
