@@ -6,7 +6,6 @@
 
 typedef struct {
     double time_taken;
-    int iterations;
     bool solved;
 } BenchmarkResult;
 

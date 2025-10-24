@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 bool solve_sudoku(int map[SIZE][SIZE], SolverType type) {
     bool solved = false;
 
@@ -28,10 +29,6 @@ bool solve_sudoku(int map[SIZE][SIZE], SolverType type) {
     }
 
     return solved;
-}
-
-void copy_map(int src[SIZE][SIZE], int dest[SIZE][SIZE]) {
-    memcpy(dest, src, sizeof(int) * SIZE * SIZE);
 }
 
 void clear_map(int map[SIZE][SIZE]) {

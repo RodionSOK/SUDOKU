@@ -79,6 +79,17 @@ static ColumnHeader* choose_column() {
     ColumnHeader* best = NULL;
     int min_size = ROWS + 1;
     
+
+    // МНЗ Добавление условия выхода
+    // for (DLNode* col = header.right; col != &header; col = col->right) {
+    //         ColumnHeader* column = (ColumnHeader*)col;
+    //         if (column->size < min_size) {
+    //             min_size = column->size;
+    //             best = column;
+    //         }
+    //     }
+
+
     for (DLNode* col = header.right; col != &header; col = col->right) {
         ColumnHeader* column = (ColumnHeader*)col;
         
@@ -181,6 +192,9 @@ static void extract_solution(int map[SIZE][SIZE]) {
         int r = row_id / (SIZE * SIZE);      
         int c = (row_id / SIZE) % SIZE;      
         int v = (row_id % SIZE) + 1;         
+
+        // МНЗ Удаление избыточного условия
+        // if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && v >= 1 && v <= SIZE) {
 
         map[r][c] = v;
     }

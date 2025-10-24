@@ -1,8 +1,39 @@
 #include "solver_mrv.h"
 #include <stdbool.h>
 
+// МНЗ Код функции был встроен в места использования
+// static bool is_valid_move(int map[SIZE][SIZE], int row, int col, int num) {
+//     for (int j = 0; j < SIZE; j++) {
+//         if (map[row][j] == num) {
+//             return false;
+//         }
+//     }
+    
+//     for (int i = 0; i < SIZE; i++) {
+//         if (map[i][col] == num) {
+//             return false;
+//         }
+//     }
+    
+//     int start_row = (row / 3) * 3;
+//     int start_col = (col / 3) * 3;
+//     for (int i = start_row; i < start_row + 3; i++) {
+//         for (int j = start_col; j < start_col + 3; j++) {
+//             if (map[i][j] == num) {
+//                 return false;
+//             }
+//         }
+//     }
+    
+//     return true;
+// }
+
+
 static int count_possibilities(int map[SIZE][SIZE], int row, int col) {
     if (map[row][col] != 0) return 0;
+
+    // МНЗ Вынос инварианта start_row + 3, end_row + 3
+    // for (int i = start_row; i < start_row + 3; i++)
 
     int start_row = (row / 3) * 3;
     int start_col = (col / 3) * 3;
@@ -11,24 +42,45 @@ static int count_possibilities(int map[SIZE][SIZE], int row, int col) {
 
     int used_mask = 0;
     
-    for (int j = 0; j < SIZE; j++) {
-        if (map[row][j] != 0) {
-            used_mask |= (1 << map[row][j]);
-        }
+
+    // МНЗ Использование битовой маски вместо операций сравнения
+    // for (int j = 0; j < SIZE; j++) {
+    //     if (map[row][j] == num) {
+    //         return false;
+    //     }
+    // }
+    
+    // МНЗ объединение двух циклов в один
+    // for (int j = 0; j < SIZE; j++) {
+    //     if (map[row][j] != 0) {
+    //         used_mask |= (1 << map[row][j]);
+    //     }
+    // }
+    
+    // for (int i = 0; i < SIZE; i++) {
+    //     if (map[i][col] != 0) {
+    //         used_mask |= (1 << map[i][col]);
+    //     }
+    // }
+
+    for (int k = 0; k < SIZE; k++) {
+        if (map[row][k] != 0) used_mask |= (1 << map[row][k]);
+        if (map[k][col] != 0) used_mask |= (1 << map[k][col]);
     }
     
-    for (int i = 0; i < SIZE; i++) {
-        if (map[i][col] != 0) {
-            used_mask |= (1 << map[i][col]);
-        }
-    }
-    
-    for (int i = start_row; i < end_row; i++) {
-        for (int j = start_col; j < end_col; j++) {
-            if (map[i][j] != 0) {
-                used_mask |= (1 << map[i][j]);
-            }
-        }
+    // МНЗ Заменена вложенная итерация по сетке на одномерную
+    // for (int i = start_row; i < end_row; i++) {
+    //     for (int j = start_col; j < end_col; j++) {
+    //         if (map[i][j] != 0) {
+    //             used_mask |= (1 << map[i][j]);
+    //         }
+    //     }
+    // }
+
+    for (int k = 0; k < 9; k++) {
+        int i = start_row + (k / 3);
+        int j = start_col + (k % 3);
+        if (map[i][j] != 0) used_mask |= (1 << map[i][j]);
     }
     
     int count = 0;
@@ -46,8 +98,12 @@ static int find_mrv_cell(int map[SIZE][SIZE], int *best_row, int *best_col) {
     bool found_empty = false;
     bool found_valid = false;
     
-    for (int i = 0; i < SIZE; i++) {
-        for (int j = 0; j < SIZE; j++) {
+    // МНЗ Заменена вложенная итерация по сетке на одномерную
+    // for (int i = 0; i < SIZE; i++) {
+    //     for (int j = 0; j < SIZE; j++) {
+    for (int k = 0; k < SIZE * SIZE; k++) {
+        int i = k / SIZE;
+        int j = k % SIZE;
             if (map[i][j] == 0) { 
                 found_empty = true;
                 int possibilities = count_possibilities(map, i, j);
@@ -67,7 +123,7 @@ static int find_mrv_cell(int map[SIZE][SIZE], int *best_row, int *best_col) {
                     }
                 }
             }
-        }
+        
     }
     
     if (!found_empty) {
@@ -91,24 +147,37 @@ static bool solve_mrv_recursive(int map[SIZE][SIZE]) {
     
     int used_mask = 0;
     
-    for (int j = 0; j < SIZE; j++) {
-        if (map[row][j] != 0) {
-            used_mask |= (1 << map[row][j]);
-        }
+    // МНЗ объединение двух циклов в один
+    // for (int j = 0; j < SIZE; j++) {
+    //     if (map[row][j] != 0) {
+    //         used_mask |= (1 << map[row][j]);
+    //     }
+    // }
+    
+    // for (int i = 0; i < SIZE; i++) {
+    //     if (map[i][col] != 0) {
+    //         used_mask |= (1 << map[i][col]);
+    //     }
+    // }
+
+    for (int k = 0; k < SIZE; k++) {
+        if (map[row][k] != 0) used_mask |= (1 << map[row][k]);
+        if (map[k][col] != 0) used_mask |= (1 << map[k][col]);
     }
     
-    for (int i = 0; i < SIZE; i++) {
-        if (map[i][col] != 0) {
-            used_mask |= (1 << map[i][col]);
-        }
-    }
-    
-    for (int i = start_row; i < end_row; i++) {
-        for (int j = start_col; j < end_col; j++) {
-            if (map[i][j] != 0) {
-                used_mask |= (1 << map[i][j]);
-            }
-        }
+    // МНЗ Заменена вложенная итерация по сетке на одномерную
+    // for (int i = start_row; i < end_row; i++) {
+    //     for (int j = start_col; j < end_col; j++) {
+    //         if (map[i][j] != 0) {
+    //             used_mask |= (1 << map[i][j]);
+    //         }
+    //     }
+    // }
+
+    for (int k = 0; k < 9; k++) {
+        int i = start_row + (k / 3);
+        int j = start_col + (k % 3);
+        if (map[i][j] != 0) used_mask |= (1 << map[i][j]);
     }
     
     for (int num = 1; num <= SIZE; num++) {

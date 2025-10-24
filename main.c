@@ -38,7 +38,7 @@ float abs_float(float number) {
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
-        if (solve_sudoku(map, SOLVER_MRV)) {
+        if (solve_sudoku(map, SOLVER_DLX)) {
             printf("Решение найдено:\n");
             print_map(map);
         } else {

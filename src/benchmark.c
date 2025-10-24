@@ -27,7 +27,7 @@ double get_time_microseconds() {
 }
 
 BenchmarkResult benchmark_single_puzzle(int puzzle[SIZE][SIZE], SolverType type) {
-    BenchmarkResult result = {0, 0, false};
+    BenchmarkResult result = {0, false};
     int test_puzzle[SIZE][SIZE];
     
     memcpy(test_puzzle, puzzle, sizeof(int) * SIZE * SIZE);

@@ -8,16 +8,11 @@ typedef struct {
     int count;              
 } CandidateSet;
 
-typedef struct {
-    bool row[SIZE][SIZE + 1];     
-    bool col[SIZE][SIZE + 1];     
-    bool box[SIZE][SIZE + 1];     
-    CandidateSet candidates[SIZE][SIZE];  
-} ConstraintSet;
+typedef CandidateSet ConstraintSet[SIZE][SIZE];
 
 bool solve_constraint(int map[SIZE][SIZE]);
-void init_constraints(int map[SIZE][SIZE], ConstraintSet* constraints);
-bool update_constraints(ConstraintSet* constraints, int row, int col, int value);
-Cell find_most_constrained_cell(int map[SIZE][SIZE], ConstraintSet* constraints);
+void init_constraints(int map[SIZE][SIZE], ConstraintSet constraints);
+// bool update_constraints(ConstraintSet constraints, int row, int col, int value);
+Cell find_most_constrained_cell(int map[SIZE][SIZE], ConstraintSet constraints);
 
 #endif

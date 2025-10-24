@@ -17,8 +17,6 @@ typedef enum {
     SOLVER_CONSTRAINT
 } SolverType;
 
-bool validGrid(int map[SIZE][SIZE], int row, int col);
-void copy_map(int src[SIZE][SIZE], int dest[SIZE][SIZE]);
 void clear_map(int map[SIZE][SIZE]);
 void print_map(int map[SIZE][SIZE]);
 

@@ -19,16 +19,31 @@ bool solve_backtrack(int map[SIZE][SIZE]) {
         int row = currentCell.row;
         int col = currentCell.col;
 
+
+        // МНЗ Вынос инварианта startRow, startCol
         int startRow = (row / 3) * 3;
         int startCol = (col / 3) * 3;
 
         bool vGrid = false;
+
+        // МНЗ Инлай оптимизация, код функции был встроен в место использования
+        //  for (int val = map[row][col] + 1; val <= SIZE && !vGrid; val++) {
+        //     map[row][col] = val;
+        //     vGrid = validGrid(map, row, col);
+        // }
+
 
         for (int val = map[row][col] + 1; val <= SIZE && !vGrid; val++) {
             map[row][col] = val;
             
             bool isValid = true;
             
+            // МНЗ Развертывание циклов для проверки строки, столбца
+            // for (int i = 0; i < SIZE; i++) {
+            //     if (i != col && map[row][i] == value)
+            //         return false;
+            // }
+
             if (isValid) {
                 if ((0 != col && map[row][0] == val) ||
                     (1 != col && map[row][1] == val) ||
