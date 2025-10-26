@@ -16,4 +16,6 @@ typedef struct ColumnHeader {
 
 bool solve_dl(int map[SIZE][SIZE]);
 
+bool solve_dl_16(int map[SIZE][SIZE]);
+
 #endif

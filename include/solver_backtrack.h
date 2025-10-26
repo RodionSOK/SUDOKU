@@ -10,5 +10,6 @@ typedef struct {
 } BacktrackSolver;
 
 bool solve_backtrack(int map[SIZE][SIZE]);
+bool solve_backtrack_16(int map[SIZE][SIZE]);
 
 #endif

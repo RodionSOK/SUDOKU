@@ -10,9 +10,22 @@ typedef struct {
 
 typedef CandidateSet ConstraintSet[SIZE][SIZE];
 
+typedef struct {
+    bool row[SIZE][SIZE + 1];     
+    bool col[SIZE][SIZE + 1];     
+    bool box[SIZE][SIZE + 1];     
+    CandidateSet candidates[SIZE][SIZE];  
+} ConstraintSet16;
+
+
 bool solve_constraint(int map[SIZE][SIZE]);
 void init_constraints(int map[SIZE][SIZE], ConstraintSet constraints);
 // bool update_constraints(ConstraintSet constraints, int row, int col, int value);
 Cell find_most_constrained_cell(int map[SIZE][SIZE], ConstraintSet constraints);
+
+bool solve_constraint_16(int map[SIZE][SIZE]);
+void init_constraints_16(int map[SIZE][SIZE], ConstraintSet16* constraints);
+bool update_constraints_16(ConstraintSet16* constraints, int row, int col, int value);
+Cell find_most_constrained_cell_16(int map[SIZE][SIZE], ConstraintSet16* constraints);
 
 #endif

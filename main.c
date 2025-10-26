@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>     
+#include <math.h>
 #include "include/sudoku_solver.h"
 #include "include/benchmark.h"
 
@@ -12,6 +13,12 @@ int WHEIGHT = 500;
 int WWIDTH = 500;
 int map[SIZE][SIZE] = {0};
 
+static inline int clamp_int(int v, int lo, int hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+}
+
 ///ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ
 
 float rgb(float x)
@@ -20,8 +27,7 @@ float rgb(float x)
 }
 
 int InMap() {
-    if (1 <= X && X <= 10 && 1 <= Y && Y<= 10) {
-
+    if (1 <= X && X <= SIZE && 1 <= Y && Y <= SIZE) {
         return 1;
     }
     return 0;
@@ -53,14 +59,18 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     
     if (GLFW_KEY_0 <= key && key <= GLFW_KEY_9 && GLFW_PRESS) {
         int number = key - '0';
-        
+
         if (InMap()) {
-            map[X - 1][Y - 1] = number;
+            int ix = X - 1;
+            int iy = Y - 1;
+            if (0 <= ix && ix < SIZE && 0 <= iy && iy < SIZE) {
+                map[ix][iy] = number;
+            }
         }
     }
     
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
-        if (X < 9) {
+        if (X < SIZE) {
             X += 1;
         }
     };
@@ -72,7 +82,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     };
     
     if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
-        if (Y < 9) {
+        if (Y < SIZE) {
             Y += 1;
         }
     };
@@ -142,10 +152,13 @@ void Hightlighting() {
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos); 
-        
-        X = xpos / WWIDTH * 11;
-        Y = abs_float( (ypos - WHEIGHT) / WHEIGHT * 11);
+        glfwGetCursorPos(window, &xpos, &ypos);
+        int newX = (int)(xpos / (double)WWIDTH * (double)SIZE) + 1;
+        int newY = (int)((1.0 - ypos / (double)WHEIGHT) * (double)SIZE) + 1;
+        newX = clamp_int(newX, 1, SIZE);
+        newY = clamp_int(newY, 1, SIZE);
+        X = newX;
+        Y = newY;
     }
 }
 
@@ -181,53 +194,47 @@ void ShowField()
 
 void ShowOutline()
 {
-    float outline[] = {
-        -4.5 / 5.5, -4.5 / 5.5,
-        -4.5 / 5.5, 4.5 / 5.5,
-        4.5 / 5.5, 4.5 / 5.5,
-        4.5 / 5.5, -4.5 / 5.5,
-        
-        -1.5 / 5.5, -4.5 / 5.5,
-        -1.5 / 5.5, 4.5 / 5.5,
-        1.5 / 5.5, -4.5 / 5.5,
-        1.5 / 5.5, 4.5 / 5.5,
-        
-        -4.5 / 5.5, 1.5 / 5.5,
-        4.5 / 5.5, 1.5 / 5.5,
-        -4.5 / 5.5, -1.5 / 5.5,
-        4.5 / 5.5, -1.5 / 5.5
-    };
-    
-    float colors[] = {
-        rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),
-        rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),
-        rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),  rgb(166),rgb(36),rgb(36),};
-
-    glVertexPointer(2, GL_FLOAT, 0, outline);
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    glColorPointer(3, GL_FLOAT, 0, colors);
-    glEnableClientState(GL_COLOR_ARRAY);
+    float outer = (float)SIZE / (SIZE + 2.0f);
+    float inner = sqrtf((float)SIZE) / (SIZE + 2.0f);
 
     glLineWidth(5);
-    
-    glDrawArrays(GL_LINE_LOOP, 0, 4);
-    glDrawArrays(GL_LINES, 4, 4);
-    glDrawArrays(GL_LINES, 8, 4);
+    glColor3f(rgb(166), rgb(36), rgb(36));
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(-outer, -outer);
+        glVertex2f(-outer,  outer);
+        glVertex2f( outer,  outer);
+        glVertex2f( outer, -outer);
+    glEnd();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    int blocks = (int) sqrtf((float)SIZE);
+    if (blocks < 1) blocks = 1;
+
+    glBegin(GL_LINES);
+    for (int k = 1; k < blocks; k++) {
+        float t = (2.0f * outer) * ((float)k / (float)blocks);
+        float x = -outer + t; 
+        glVertex2f(x, -outer);
+        glVertex2f(x,  outer);
+    }
+    for (int k = 1; k < blocks; k++) {
+        float t = (2.0f * outer) * ((float)k / (float)blocks);
+        float y = -outer + t; 
+        glVertex2f(-outer, y);
+        glVertex2f( outer, y);
+    }
+    glEnd();
 }
 
 void ShowTable()
 {
     glLoadIdentity();
     glPushMatrix();
-    glScalef(2.0 / 11, 2.0 / 11, 1);
-    glTranslatef(-9 * 0.5, -9 * 0.5, 0);
+    float pad = 2.0f / (SIZE + 2.0f);
+    glScalef(pad, pad, 1);
+    glTranslatef(-(SIZE) * 0.5f, -(SIZE) * 0.5f, 0);
 
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
             glPushMatrix();
             glTranslatef(i, j, 0);
 
@@ -237,7 +244,7 @@ void ShowTable()
                     Hightlighting();
                 }
             }
-            if (map[i][j] != 0) {
+            if (i >= 0 && i < SIZE && j >= 0 && j < SIZE && map[i][j] != 0) {
                 ShowCount(map[i][j]);
             }
 

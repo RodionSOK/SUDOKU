@@ -14,15 +14,27 @@ bool solve_sudoku(int map[SIZE][SIZE], SolverType type) {
         case SOLVER_BACKTRACK:
             solved = solve_backtrack(map);
             break;
-        case SOLVER_MRV:
-            solved = solve_mrv(map);
+        case SOLVER_BACKTRACK_16:
+            solved = solve_backtrack_16(map);
             break;
+        case SOLVER_MRV:
+            solved = solve_mrv(map);            
+            break;
+        // case SOLVER_MRV_16:
+        //     solved = solve_mrv_16(map);
+        //     break;
         case SOLVER_DLX:
             solved = solve_dl(map);
             break;
+        // case SOLVER_DLX_16:
+        //     solved = solve_dl_16(map);
+        //     break;
         case SOLVER_CONSTRAINT:
             solved = solve_constraint(map);
             break;
+        // case SOLVER_CONSTRAINT_16:
+        //     solved = solve_constraint_16(map);
+        //     break;
         default:
             printf("Неизвестный тип решателя\n");
             return false;
