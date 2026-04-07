@@ -6,7 +6,7 @@
 #define SIZE 16
 #define BOX_SIZE 4
 
-#define TIME_LIMIT 60
+#define TIME_LIMIT 10
 
 typedef struct {
     int row;
